@@ -140,3 +140,7 @@ cython_debug/
 
 # macOS
 .DS_Store
+
+# AWS / SSH private keys
+*.pem
+*.ppk
