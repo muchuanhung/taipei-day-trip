@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+task/
 
 # C extensions
 *.so
@@ -139,3 +140,7 @@ cython_debug/
 
 # macOS
 .DS_Store
+
+# AWS / SSH private keys
+*.pem
+*.ppk
