@@ -1,5 +1,6 @@
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from database import get_connection
 
 app = FastAPI()
@@ -183,3 +184,5 @@ async def api_categories():
 			conn.close()
 	except Exception as exc:
 		return error_response(500, str(exc))
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
