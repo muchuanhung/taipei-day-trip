@@ -1,27 +1,83 @@
+let nextPage = 0;
+let isLoading = false;
+let observer = null;
+
 document.addEventListener("DOMContentLoaded", () => {
-  loadAttractions();
+  setupInfiniteScroll();
+  loadAttractions({ replace: true });
 });
 
-async function loadAttractions() {
+function setupInfiniteScroll() {
+  const sentinel = document.getElementById("scroll-sentinel");
+  if (!sentinel) return;
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        loadAttractions();
+      }
+    },
+    { root: null, rootMargin: "0px", threshold: 0 },
+  );
+
+  observer.observe(sentinel);
+}
+
+async function loadAttractions({ replace = false } = {}) {
+  if (isLoading) return;
+  if (nextPage === null) return;
+
   const list = document.getElementById("attraction-list");
   if (!list) return;
 
+  const page = nextPage;
+  isLoading = true;
+
   try {
-    const response = await fetch("/api/attractions?page=0");
+    const response = await fetch(`/api/attractions?page=${page}`);
     const result = await response.json();
 
     if (!response.ok || result.error) {
       throw new Error(result.message || "取得景點資料失敗");
     }
 
-    list.innerHTML = "";
+    if (replace) {
+      list.innerHTML = "";
+    }
 
     result.data.forEach((attraction) => {
       list.appendChild(createAttractionCard(attraction));
     });
+
+    nextPage = result.nextPage ?? null;
+
+    if (nextPage === null) {
+      observer?.disconnect();
+    }
   } catch (error) {
     console.error(error);
-    list.innerHTML = `<p class="attractions__error">無法載入景點資料</p>`;
+    if (replace) {
+      list.innerHTML = `<p class="attractions__error">無法載入景點資料</p>`;
+    }
+    nextPage = null;
+    observer?.disconnect();
+  } finally {
+    isLoading = false;
+  }
+
+  // 第一頁不夠高、sentinel 仍在視窗內時，Observer 不會再觸發，補打下一頁
+  requestMoreIfSentinelVisible();
+}
+
+function requestMoreIfSentinelVisible() {
+  if (isLoading || nextPage === null) return;
+
+  const sentinel = document.getElementById("scroll-sentinel");
+  if (!sentinel) return;
+
+  const rect = sentinel.getBoundingClientRect();
+  if (rect.top < window.innerHeight && rect.bottom > 0) {
+    loadAttractions();
   }
 }
 
