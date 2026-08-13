@@ -1,9 +1,12 @@
 let nextPage = 0;
 let isLoading = false;
 let observer = null;
+let selectedCategory = null;
+let categoriesLoaded = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   setupInfiniteScroll();
+  setupCategoryPanel();
   loadAttractions({ replace: true });
 });
 
@@ -21,6 +24,90 @@ function setupInfiniteScroll() {
   );
 
   observer.observe(sentinel);
+}
+
+function setupCategoryPanel() {
+  const button = document.getElementById("category-button");
+  const panel = document.getElementById("category-panel");
+  if (!button || !panel) return;
+
+  button.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    if (panel.hidden) {
+      await openCategoryPanel();
+    } else {
+      closeCategoryPanel();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (panel.hidden) return;
+    if (panel.contains(event.target) || button.contains(event.target)) return;
+    closeCategoryPanel();
+  });
+}
+
+async function openCategoryPanel() {
+  const button = document.getElementById("category-button");
+  const panel = document.getElementById("category-panel");
+  if (!button || !panel) return;
+
+  if (!categoriesLoaded) {
+    await loadCategories();
+  }
+
+  panel.hidden = false;
+  button.setAttribute("aria-expanded", "true");
+}
+
+function closeCategoryPanel() {
+  const button = document.getElementById("category-button");
+  const panel = document.getElementById("category-panel");
+  if (!button || !panel) return;
+
+  panel.hidden = true;
+  button.setAttribute("aria-expanded", "false");
+}
+
+async function loadCategories() {
+  const list = document.getElementById("category-list");
+  if (!list) return;
+
+  try {
+    const response = await fetch("/api/categories");
+    const result = await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(result.message || "取得分類失敗");
+    }
+
+    list.innerHTML = "";
+
+    result.data.forEach((category) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "category-panel__item";
+      item.textContent = category;
+      item.addEventListener("click", () => {
+        selectCategory(category);
+      });
+      list.appendChild(item);
+    });
+
+    categoriesLoaded = true;
+  } catch (error) {
+    console.error(error);
+    list.innerHTML = `<p class="category-panel__error">無法載入分類</p>`;
+  }
+}
+
+function selectCategory(category) {
+  selectedCategory = category;
+  const label = document.getElementById("category-label");
+  if (label) {
+    label.textContent = category;
+  }
+  closeCategoryPanel();
 }
 
 async function loadAttractions({ replace = false } = {}) {

@@ -26,23 +26,28 @@
     <div class="hero__inner">
       <h1 class="hero__title">輕鬆享受台北一日悠閒</h1>
       <p class="hero__subtitle">探索每個角落，體驗城市的深度旅遊行程</p>
-      <form class="search" id="search-form" action="#" method="get">
-        <button type="button" class="search__category" id="category-button">
-          <span id="category-label">全部分類</span>
-          <span class="search__category-arrow" aria-hidden="true"></span>
-        </button>
-        <input
-          class="search__input"
-          id="search-input"
-          type="text"
-          name="keyword"
-          placeholder="輸入景點名稱查詢"
-          autocomplete="off"
-        >
-        <button type="submit" class="search__submit" aria-label="搜尋">
-          <img src="/static/images/icon_search.png" alt="" width="30" height="30">
-        </button>
-      </form>
+      <div class="search-wrap">
+        <form class="search" id="search-form" action="#" method="get">
+          <button type="button" class="search__category" id="category-button" aria-expanded="false" aria-controls="category-panel">
+            <span id="category-label">全部分類</span>
+            <span class="search__category-arrow" aria-hidden="true"></span>
+          </button>
+          <input
+            class="search__input"
+            id="search-input"
+            type="text"
+            name="keyword"
+            placeholder="輸入景點名稱查詢"
+            autocomplete="off"
+          >
+          <button type="submit" class="search__submit" aria-label="搜尋">
+            <img src="/static/images/icon_search.png" alt="" width="30" height="30">
+          </button>
+        </form>
+        <div class="category-panel" id="category-panel" hidden>
+          <div class="category-panel__list" id="category-list"></div>
+        </div>
+      </div>
     </div>
   </section>
 
