@@ -2,11 +2,13 @@ let nextPage = 0;
 let isLoading = false;
 let observer = null;
 let selectedCategory = null;
+let searchKeyword = "";
 let categoriesLoaded = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   setupInfiniteScroll();
   setupCategoryPanel();
+  setupSearchForm();
   loadAttractions({ replace: true });
 });
 
@@ -24,6 +26,35 @@ function setupInfiniteScroll() {
   );
 
   observer.observe(sentinel);
+}
+
+function setupSearchForm() {
+  const form = document.getElementById("search-form");
+  if (!form) return;
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    searchAttractions();
+  });
+}
+
+function searchAttractions() {
+  const input = document.getElementById("search-input");
+  searchKeyword = input?.value.trim() || "";
+  resetAndLoadAttractions();
+}
+
+function resetAndLoadAttractions() {
+  nextPage = 0;
+  isLoading = false;
+
+  const sentinel = document.getElementById("scroll-sentinel");
+  if (observer && sentinel) {
+    observer.disconnect();
+    observer.observe(sentinel);
+  }
+
+  loadAttractions({ replace: true });
 }
 
 function setupCategoryPanel() {
@@ -110,6 +141,17 @@ function selectCategory(category) {
   closeCategoryPanel();
 }
 
+function buildAttractionsUrl(page) {
+  const params = new URLSearchParams({ page: String(page) });
+  if (selectedCategory) {
+    params.set("category", selectedCategory);
+  }
+  if (searchKeyword) {
+    params.set("keyword", searchKeyword);
+  }
+  return `/api/attractions?${params.toString()}`;
+}
+
 async function loadAttractions({ replace = false } = {}) {
   if (isLoading) return;
   if (nextPage === null) return;
@@ -121,7 +163,7 @@ async function loadAttractions({ replace = false } = {}) {
   isLoading = true;
 
   try {
-    const response = await fetch(`/api/attractions?page=${page}`);
+    const response = await fetch(buildAttractionsUrl(page));
     const result = await response.json();
 
     if (!response.ok || result.error) {
@@ -130,6 +172,15 @@ async function loadAttractions({ replace = false } = {}) {
 
     if (replace) {
       list.innerHTML = "";
+    }
+
+    if (!result.data.length) {
+      if (replace) {
+        list.innerHTML = `<p class="attractions__error">查無相關景點</p>`;
+      }
+      nextPage = null;
+      observer?.disconnect();
+      return;
     }
 
     result.data.forEach((attraction) => {
