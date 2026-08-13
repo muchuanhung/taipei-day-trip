@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupInfiniteScroll();
   setupCategoryPanel();
   setupSearchForm();
+  setupMrtBar();
+  loadMrts();
   loadAttractions({ replace: true });
 });
 
@@ -139,6 +141,60 @@ function selectCategory(category) {
     label.textContent = category;
   }
   closeCategoryPanel();
+}
+
+function setupMrtBar() {
+  const list = document.getElementById("mrt-list");
+  const left = document.getElementById("mrt-left");
+  const right = document.getElementById("mrt-right");
+  if (!list || !left || !right) return;
+
+  left.addEventListener("click", () => {
+    list.scrollBy({ left: -list.clientWidth * 0.8, behavior: "smooth" });
+  });
+
+  right.addEventListener("click", () => {
+    list.scrollBy({ left: list.clientWidth * 0.8, behavior: "smooth" });
+  });
+}
+
+async function loadMrts() {
+  const list = document.getElementById("mrt-list");
+  if (!list) return;
+
+  try {
+    const response = await fetch("/api/mrts");
+    const result = await response.json();
+
+    if (!response.ok || result.error) {
+      throw new Error(result.message || "取得捷運站失敗");
+    }
+
+    list.innerHTML = "";
+
+    result.data.forEach((mrtName) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "mrt__item";
+      item.textContent = mrtName;
+      item.addEventListener("click", () => {
+        filterByMrt(mrtName);
+      });
+      list.appendChild(item);
+    });
+  } catch (error) {
+    console.error(error);
+    list.innerHTML = "";
+  }
+}
+
+function filterByMrt(mrtName) {
+  const input = document.getElementById("search-input");
+  if (input) {
+    input.value = mrtName;
+  }
+  searchKeyword = mrtName;
+  resetAndLoadAttractions();
 }
 
 function buildAttractionsUrl(page) {
