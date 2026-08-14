@@ -1,5 +1,6 @@
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from database import get_connection
 
 app = FastAPI()
@@ -20,6 +21,10 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+	return FileResponse("./static/images/favicon.svg", media_type="image/svg+xml")
 
 # 錯誤回應
 def error_response(status_code: int, message: str):
@@ -183,3 +188,5 @@ async def api_categories():
 			conn.close()
 	except Exception as exc:
 		return error_response(500, str(exc))
+
+app.mount("/static", StaticFiles(directory="static"), name="static")

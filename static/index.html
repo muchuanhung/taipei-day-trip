@@ -1,11 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Index</title>
+  <title>台北一日遊</title>
+  <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/index.css">
+  <script src="/static/js/index.js" defer></script>
 </head>
 <body>
-  
+  <header class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__logo" href="/">台北一日遊</a>
+      <nav class="navbar__actions">
+        <button type="button" class="navbar__link">預定行程</button>
+        <button type="button" class="navbar__link">登入/註冊</button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero__inner">
+      <h1 class="hero__title">輕鬆享受台北一日悠閒</h1>
+      <p class="hero__subtitle">探索每個角落，體驗城市的深度旅遊行程</p>
+      <div class="search-wrap">
+        <form class="search" id="search-form" action="#" method="get">
+          <button type="button" class="search__category" id="category-button" aria-expanded="false" aria-controls="category-panel">
+            <span id="category-label">全部分類</span>
+            <span class="search__category-arrow" aria-hidden="true"></span>
+          </button>
+          <input
+            class="search__input"
+            id="search-input"
+            type="text"
+            name="keyword"
+            placeholder="輸入景點名稱查詢"
+            autocomplete="off"
+          >
+          <button type="submit" class="search__submit" aria-label="搜尋">
+            <img src="/static/images/icon_search.png" alt="" width="30" height="30">
+          </button>
+        </form>
+        <div class="category-panel" id="category-panel" hidden>
+          <div class="category-panel__list" id="category-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mrt">
+    <div class="mrt__inner">
+      <button type="button" class="mrt__arrow mrt__arrow--left" id="mrt-left" aria-label="向左捲動">
+        <img src="/static/images/btn_leftArrow.png" alt="" width="32" height="32">
+      </button>
+      <div class="mrt__list" id="mrt-list"></div>
+      <button type="button" class="mrt__arrow mrt__arrow--right" id="mrt-right" aria-label="向右捲動">
+        <img src="/static/images/btn_rightArrow.png" alt="" width="32" height="32">
+      </button>
+    </div>
+  </section>
+
+  <main class="attractions">
+    <div class="attractions__grid" id="attraction-list">
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+      <article class="card card--placeholder">
+        <div class="card__image"><div class="card__name"></div></div>
+        <div class="card__meta"><span class="card__mrt"></span><span class="card__category"></span></div>
+      </article>
+    </div>
+    <div id="scroll-sentinel" class="scroll-sentinel" aria-hidden="true"></div>
+  </main>
+
+  <footer class="footer">
+    <p>COPYRIGHT © 2021 台北一日遊</p>
+  </footer>
 </body>
 </html>
