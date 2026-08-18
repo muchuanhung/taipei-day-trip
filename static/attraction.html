@@ -26,17 +26,13 @@
     <div class="attraction-top">
       <div class="slideshow">
         <div class="slideshow__image" id="attraction-image"></div>
-        <button type="button" class="slideshow__arrow slideshow__arrow--left" aria-label="上一張">
+        <button type="button" class="slideshow__arrow slideshow__arrow--left" id="slideshow-prev" aria-label="上一張">
           <img src="/static/images/btn_leftArrow.png" alt="" width="30" height="30">
         </button>
-        <button type="button" class="slideshow__arrow slideshow__arrow--right" aria-label="下一張">
+        <button type="button" class="slideshow__arrow slideshow__arrow--right" id="slideshow-next" aria-label="下一張">
           <img src="/static/images/btn_rightArrow.png" alt="" width="30" height="30">
         </button>
-        <div class="slideshow__dots" aria-hidden="true">
-          <span class="slideshow__dot slideshow__dot--active"></span>
-          <span class="slideshow__dot"></span>
-          <span class="slideshow__dot"></span>
-        </div>
+        <div class="slideshow__dots" id="slideshow-dots" aria-hidden="true"></div>
       </div>
 
       <div class="attraction-profile">

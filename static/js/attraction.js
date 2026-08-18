@@ -38,7 +38,6 @@ function renderAttraction(attraction) {
   const description = document.getElementById("attraction-description");
   const address = document.getElementById("attraction-address");
   const transport = document.getElementById("attraction-transport");
-  const imageWrap = document.getElementById("attraction-image");
 
   if (name) name.textContent = attraction.name || "";
   if (category) {
@@ -50,16 +49,58 @@ function renderAttraction(attraction) {
   if (address) address.textContent = attraction.address || "";
   if (transport) transport.textContent = attraction.transport || "";
 
-  if (imageWrap) {
-    imageWrap.innerHTML = "";
-    const firstImage = attraction.images?.[0];
-    if (firstImage) {
-      const image = document.createElement("img");
-      image.src = firstImage;
-      image.alt = attraction.name || "";
-      imageWrap.appendChild(image);
-    }
+  setupSlideshow(attraction.images || [], attraction.name || "");
+}
+
+function setupSlideshow(images, altText) {
+  const imageWrap = document.getElementById("attraction-image");
+  const dotsWrap = document.getElementById("slideshow-dots");
+  const prev = document.getElementById("slideshow-prev");
+  const next = document.getElementById("slideshow-next");
+  if (!imageWrap || !dotsWrap) return;
+
+  const slides = images.filter(Boolean);
+  let currentIndex = 0;
+
+  imageWrap.innerHTML = "";
+  dotsWrap.innerHTML = "";
+
+  if (!slides.length) return;
+
+  const image = document.createElement("img");
+  image.alt = altText;
+  imageWrap.appendChild(image);
+
+  slides.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "slideshow__dot";
+    dot.setAttribute("aria-label", `第 ${index + 1} 張`);
+    dot.addEventListener("click", () => {
+      currentIndex = index;
+      renderSlide();
+    });
+    dotsWrap.appendChild(dot);
+  });
+
+  function renderSlide() {
+    image.src = slides[currentIndex];
+    dotsWrap.querySelectorAll(".slideshow__dot").forEach((dot, index) => {
+      dot.classList.toggle("slideshow__dot--active", index === currentIndex);
+    });
   }
+
+  prev?.addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+    renderSlide();
+  });
+
+  next?.addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % slides.length;
+    renderSlide();
+  });
+
+  renderSlide();
 }
 
 function showAttractionError(message) {
