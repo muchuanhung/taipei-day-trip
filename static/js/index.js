@@ -276,6 +276,10 @@ function requestMoreIfSentinelVisible() {
 }
 
 function createAttractionCard(attraction) {
+  const link = document.createElement("a");
+  link.className = "card-link";
+  link.href = `/attraction/${attraction.id}`;
+
   const card = document.createElement("article");
   card.className = "card";
 
@@ -306,6 +310,7 @@ function createAttractionCard(attraction) {
 
   meta.append(mrt, category);
   card.append(imageWrap, meta);
+  link.appendChild(card);
 
-  return card;
+  return link;
 }

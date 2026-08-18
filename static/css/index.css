@@ -330,6 +330,13 @@ a {
   height: fit-content;
 }
 
+.card-link {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
 .card__image {
   position: relative;
   width: 100%;
