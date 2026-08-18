@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  setupTimeSelection();
   loadAttraction();
 });
 
@@ -66,4 +67,27 @@ function showAttractionError(message) {
   const description = document.getElementById("attraction-description");
   if (name) name.textContent = "無法顯示景點";
   if (description) description.textContent = message;
+}
+
+function setupTimeSelection() {
+  const options = document.querySelectorAll('input[name="time-slot"]');
+  const price = document.getElementById("booking-price");
+  if (!options.length || !price) return;
+
+  options.forEach((option) => {
+    option.addEventListener("change", () => {
+      updateBookingPrice();
+    });
+  });
+
+  updateBookingPrice();
+}
+
+function updateBookingPrice() {
+  const selected = document.querySelector('input[name="time-slot"]:checked');
+  const price = document.getElementById("booking-price");
+  if (!price) return;
+
+  const amount = selected?.value === "morning" ? 2000 : 2500;
+  price.textContent = `新台幣 ${amount} 元`;
 }
