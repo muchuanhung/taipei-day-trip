@@ -1,0 +1,413 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Noto Sans TC", sans-serif;
+  color: #666666;
+  background: #ffffff;
+  padding-top: 54px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 54px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  justify-content: center;
+}
+
+.navbar__inner {
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar__logo {
+  color: #448899;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 34px;
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__link {
+  padding: 10px;
+  color: #666666;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 13.3px;
+}
+
+/* Top section */
+.attraction-main {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 50px 15px;
+}
+
+.attraction-top {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 400px;
+  display: flex;
+  align-items: stretch;
+  gap: 30px;
+}
+
+/* Slideshow placeholder (3-5 adds behavior) */
+.slideshow {
+  position: relative;
+  flex: 0 0 540px;
+  width: 540px;
+  height: 400px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: #e8e8e8;
+}
+
+.slideshow__image {
+  width: 100%;
+  height: 100%;
+  background: #d8d8d8;
+}
+
+.slideshow__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slideshow__arrow--left {
+  left: 20px;
+}
+
+.slideshow__arrow--right {
+  right: 20px;
+}
+
+.slideshow__arrow img {
+  display: block;
+  width: 30px;
+  height: 30px;
+}
+
+.slideshow__dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.slideshow__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid #ffffff;
+}
+
+.slideshow__dot--active {
+  background: rgba(129, 129, 129, 0.87);
+}
+
+/* Profile + booking */
+.attraction-profile {
+  flex: 1;
+  min-width: 0;
+  max-width: 600px;
+}
+
+.attraction-profile__name {
+  margin: 0 0 15px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 24px;
+  color: #666666;
+}
+
+.attraction-profile__category {
+  font-weight: 500;
+  line-height: 13.3px;
+}
+
+.booking-card {
+  background: #e8e8e8;
+  border-radius: 5px;
+  padding: 15px 20px 15px 20px;
+  min-height: 302px;
+}
+
+.booking-card__title {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 13.3px;
+  color: #666666;
+}
+
+.booking-card__subtitle {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 23px;
+  color: #666666;
+}
+
+.booking-card__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 40px;
+  color: #666666;
+}
+
+.booking-card__label {
+  flex-shrink: 0;
+}
+
+.booking-card__date {
+  width: 193px;
+  height: 35px;
+  padding: 0 8px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #666666;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.booking-card__schedule {
+  align-items: flex-start;
+  line-height: 32px;
+}
+
+.booking-card__options {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.booking-card__option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.booking-card__option input[type="radio"] {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: #448899;
+  cursor: pointer;
+}
+
+.booking-card__fee {
+  margin-bottom: 16px;
+}
+
+.booking-card__price {
+  font-weight: 500;
+}
+
+.booking-card__submit {
+  width: 154px;
+  height: 36px;
+  border-radius: 5px;
+  background: #448899;
+  color: #ffffff;
+  font-size: 19px;
+}
+
+.booking-card__submit:hover {
+  background: #337788;
+}
+
+/* Detail section */
+.divider {
+  max-width: 1200px;
+  margin: 0 auto;
+  border: 0;
+  border-top: 1px solid #e8e8e8;
+}
+
+.attraction-detail {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 30px 15px 40px;
+}
+
+.attraction-detail__inner {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.attraction-detail__description,
+.attraction-detail__info {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 20px 20px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 23px;
+}
+
+.attraction-detail__heading {
+  font-weight: 700;
+}
+
+.attraction-detail__address,
+.attraction-detail__transport {
+  margin: 0 0 20px;
+}
+
+.attraction-detail__map {
+  width: 90%;
+  max-width: 1080px;
+  height: 400px;
+  margin-top: 10px;
+  border-radius: 30px;
+  background: #e8e8e8;
+  overflow: hidden;
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  height: 104px;
+  background: #757575;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 13.3px;
+}
+
+.footer p {
+  margin: 0;
+}
+
+@media (min-width: 601px) {
+  .attraction-profile__category {
+    padding: 16px 0;
+    font-size: 16px;
+  }
+}
+
+/* Tablet / mobile */
+@media (max-width: 1200px) {
+  .attraction-main {
+    padding-top: 30px;
+  }
+
+  .attraction-top {
+    flex-direction: column;
+    align-items: center;
+    min-height: auto;
+  }
+
+  .slideshow {
+    flex: none;
+    width: 100%;
+    max-width: 540px;
+  }
+
+  .attraction-profile {
+    width: 100%;
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar__logo {
+    font-size: 24px;
+  }
+
+  .attraction-main {
+    padding: 20px;
+  }
+
+  .attraction-top {
+    gap: 20px;
+  }
+
+  .slideshow {
+    height: 280px;
+  }
+
+  .booking-card {
+    padding: 16px;
+  }
+
+  .booking-card__date {
+    width: 100%;
+    max-width: 193px;
+  }
+
+  .attraction-detail__map {
+    width: 100%;
+    height: 280px;
+    border-radius: 16px;
+  }
+}

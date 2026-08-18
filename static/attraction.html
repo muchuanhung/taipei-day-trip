@@ -1,11 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attraction</title>
+  <title>台北一日遊</title>
+  <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/attraction.css">
 </head>
 <body>
-  
+  <header class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__logo" href="/">台北一日遊</a>
+      <nav class="navbar__actions">
+        <button type="button" class="navbar__link">預定行程</button>
+        <button type="button" class="navbar__link">登入/註冊</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="attraction-main">
+    <div class="attraction-top">
+      <div class="slideshow">
+        <div class="slideshow__image"></div>
+        <button type="button" class="slideshow__arrow slideshow__arrow--left" aria-label="上一張">
+          <img src="/static/images/btn_leftArrow.png" alt="" width="30" height="30">
+        </button>
+        <button type="button" class="slideshow__arrow slideshow__arrow--right" aria-label="下一張">
+          <img src="/static/images/btn_rightArrow.png" alt="" width="30" height="30">
+        </button>
+        <div class="slideshow__dots" aria-hidden="true">
+          <span class="slideshow__dot slideshow__dot--active"></span>
+          <span class="slideshow__dot"></span>
+          <span class="slideshow__dot"></span>
+        </div>
+      </div>
+
+      <div class="attraction-profile">
+        <h1 class="attraction-profile__name">平安鐘</h1>
+        <p class="attraction-profile__category">公共藝術</p>
+
+        <div class="booking-card">
+          <h2 class="booking-card__title">訂購導覽行程</h2>
+          <p class="booking-card__subtitle">以此景點為中心的一日行程，帶您探索城市角落故事</p>
+
+          <div class="booking-card__row">
+            <span class="booking-card__label">選擇日期：</span>
+            <input class="booking-card__date" type="date" id="booking-date">
+          </div>
+
+          <div class="booking-card__row booking-card__schedule">
+            <span class="booking-card__label">選擇時間：</span>
+            <div class="booking-card__options">
+              <label class="booking-card__option">
+                <input type="radio" name="time-slot" value="morning" checked>
+                <span>上半天</span>
+              </label>
+              <label class="booking-card__option">
+                <input type="radio" name="time-slot" value="afternoon">
+                <span>下半天</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="booking-card__row booking-card__fee">
+            <span class="booking-card__label">導覽費用：</span>
+            <span class="booking-card__price">新台幣 2000 元</span>
+          </div>
+
+          <button type="button" class="booking-card__submit">開始預約行程</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <hr class="divider">
+
+  <section class="attraction-detail">
+    <div class="attraction-detail__inner">
+      <p class="attraction-detail__description">
+        平安鐘位於臺北市捷運劍潭站，是臺北市立美術館的戶外裝置藝術。此作品以「平安」為主題，傳達對城市的祝福。
+      </p>
+      <div class="attraction-detail__info">
+        <p class="attraction-detail__address">
+          <span class="attraction-detail__heading">景點地址：</span><br>
+          臺北市中山區中山北路3段181號
+        </p>
+        <p class="attraction-detail__transport">
+          <span class="attraction-detail__heading">交通方式：</span><br>
+          捷運劍潭站2號出口，步行約10分鐘
+        </p>
+      </div>
+      <div class="attraction-detail__map" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>COPYRIGHT © 2021 台北一日遊</p>
+  </footer>
 </body>
 </html>
