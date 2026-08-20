@@ -301,7 +301,7 @@ a {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 30px 15px 40px;
+  padding: 40px 0;
 }
 
 .attraction-detail__inner {
@@ -309,14 +309,12 @@ a {
   max-width: 1200px;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
 .attraction-detail__description,
 .attraction-detail__info {
   width: 100%;
-  max-width: 1080px;
-  margin: 0 20px 20px;
+  margin: 0 0 20px;
   font-size: 16px;
   font-weight: 400;
   line-height: 23px;
@@ -329,16 +327,6 @@ a {
 .attraction-detail__address,
 .attraction-detail__transport {
   margin: 0 0 20px;
-}
-
-.attraction-detail__map {
-  width: 90%;
-  max-width: 1080px;
-  height: 400px;
-  margin-top: 10px;
-  border-radius: 30px;
-  background: #e8e8e8;
-  overflow: hidden;
 }
 
 /* Footer */
@@ -424,21 +412,11 @@ a {
     max-width: 193px;
   }
 
+  .divider {
+    margin: 0 20px;
+  }
+
   .attraction-detail {
-    padding: 30px 20px 0;
-  }
-
-  .attraction-detail__description,
-  .attraction-detail__info {
-    margin: 0 0 20px;
-  }
-
-  .attraction-detail__map {
-    width: 100vw;
-    max-width: none;
-    height: 280px;
-    margin-top: 20px;
-    margin-left: calc(50% - 50vw);
-    border-radius: 0;
+    padding: 40px 20px;
   }
 }
