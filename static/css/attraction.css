@@ -396,15 +396,23 @@ a {
   }
 
   .attraction-main {
-    padding: 20px;
+    padding: 0;
   }
 
   .attraction-top {
     gap: 20px;
+    align-items: stretch;
   }
 
   .slideshow {
+    width: 100%;
+    max-width: none;
     height: 280px;
+    border-radius: 0;
+  }
+
+  .attraction-profile {
+    padding: 0 20px;
   }
 
   .booking-card {
@@ -416,9 +424,21 @@ a {
     max-width: 193px;
   }
 
+  .attraction-detail {
+    padding: 30px 20px 0;
+  }
+
+  .attraction-detail__description,
+  .attraction-detail__info {
+    margin: 0 0 20px;
+  }
+
   .attraction-detail__map {
-    width: 100%;
+    width: 100vw;
+    max-width: none;
     height: 280px;
-    border-radius: 16px;
+    margin-top: 20px;
+    margin-left: calc(50% - 50vw);
+    border-radius: 0;
   }
 }
