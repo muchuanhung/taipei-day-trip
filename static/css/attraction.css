@@ -83,7 +83,7 @@ a {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 50px 15px;
+  padding: 40px 15px;
 }
 
 .attraction-top {
@@ -149,25 +149,25 @@ a {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 15px;
+  bottom: 0;
   z-index: 2;
   display: flex;
-  justify-content: center;
-  gap: 12px;
+  height: 5px;
+  gap: 0;
 }
 
 .slideshow__dot {
-  width: 12px;
-  height: 12px;
+  flex: 1;
+  height: 100%;
   padding: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid #ffffff;
+  border: 0;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.55);
   cursor: pointer;
 }
 
 .slideshow__dot--active {
-  background: rgba(129, 129, 129, 0.87);
+  background: #000000;
 }
 
 /* Profile + booking */
@@ -186,7 +186,7 @@ a {
 }
 
 .attraction-profile__category {
-  font-weight: 500;
+  font-weight: 400;
   line-height: 13.3px;
 }
 
@@ -221,7 +221,6 @@ a {
   margin-bottom: 16px;
   font-size: 16px;
   font-weight: 700;
-  line-height: 40px;
   color: #666666;
 }
 
@@ -400,7 +399,7 @@ a {
   }
 
   .attraction-profile {
-    padding: 0 20px;
+    padding: 0 10px;
   }
 
   .booking-card {
@@ -417,6 +416,6 @@ a {
   }
 
   .attraction-detail {
-    padding: 40px 20px;
+    padding: 40px 10px;
   }
 }
