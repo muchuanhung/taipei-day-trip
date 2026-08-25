@@ -1,11 +1,14 @@
+const AUTH_TOKEN_KEY = "token";
+
 document.addEventListener("DOMContentLoaded", () => {
   setupAuthDialog();
+  checkAuthStatus();
 });
 
 function setupAuthDialog() {
   mountAuthDialog();
 
-  const openButton = document.getElementById("auth-open");
+  const authButton = document.getElementById("auth-open");
   const overlay = document.getElementById("auth-overlay");
   const dialog = document.getElementById("auth-dialog");
   const closeButton = document.getElementById("auth-close");
@@ -18,7 +21,12 @@ function setupAuthDialog() {
 
   if (!overlay || !dialog) return;
 
-  openButton?.addEventListener("click", () => openAuthDialog("signin"));
+  authButton?.addEventListener("click", () => {
+    if (authButton.dataset.authState === "signed-in") {
+      return;
+    }
+    openAuthDialog("signin");
+  });
   closeButton?.addEventListener("click", closeAuthDialog);
   overlay.addEventListener("click", closeAuthDialog);
 
@@ -67,6 +75,39 @@ function setupAuthDialog() {
     close: closeAuthDialog,
     showPanel: showAuthPanel,
   };
+}
+
+async function checkAuthStatus() {
+  const authButton = document.getElementById("auth-open");
+  if (!authButton) return;
+
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  try {
+    const response = await fetch("/api/user/auth", { headers });
+    const result = await response.json();
+    renderAuthButton(result.data ?? null);
+  } catch (error) {
+    console.error(error);
+    renderAuthButton(null);
+  }
+}
+
+function renderAuthButton(user) {
+  const authButton = document.getElementById("auth-open");
+  if (!authButton) return;
+
+  if (user) {
+    authButton.textContent = "登出系統";
+    authButton.dataset.authState = "signed-in";
+  } else {
+    authButton.textContent = "登入/註冊";
+    authButton.dataset.authState = "signed-out";
+  }
 }
 
 function mountAuthDialog() {
