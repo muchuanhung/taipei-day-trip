@@ -33,13 +33,14 @@ function setupAuthDialog() {
   toSignup?.addEventListener("click", () => showAuthPanel("signup"));
   toSignin?.addEventListener("click", () => showAuthPanel("signin"));
 
-  // 4-2: UI only; API wiring is 4-4 / 4-5
+  // 4-5: sign-in API
   signinForm?.addEventListener("submit", (event) => {
     event.preventDefault();
   });
 
-  signupForm?.addEventListener("submit", (event) => {
+  signupForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    await handleSignup(signupForm);
   });
 
   function openAuthDialog(panel = "signin") {
@@ -68,6 +69,52 @@ function setupAuthDialog() {
       el.textContent = "";
       el.classList.remove("is-error", "is-success");
     });
+  }
+
+  function setAuthMessage(elementId, message, type) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = message;
+    el.classList.remove("is-error", "is-success");
+    if (type) el.classList.add(type);
+  }
+
+  async function handleSignup(form) {
+    const formData = new FormData(form);
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
+
+    setAuthMessage("auth-signup-message", "", null);
+
+    if (!name || !email || !password) {
+      setAuthMessage("auth-signup-message", "請提供完整的註冊資訊", "is-error");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        setAuthMessage(
+          "auth-signup-message",
+          result.message || "註冊失敗，請稍後再試",
+          "is-error",
+        );
+        return;
+      }
+
+      setAuthMessage("auth-signup-message", "註冊成功，請登入系統", "is-success");
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      setAuthMessage("auth-signup-message", "註冊失敗，請稍後再試", "is-error");
+    }
   }
 
   window.AuthDialog = {
