@@ -33,9 +33,9 @@ function setupAuthDialog() {
   toSignup?.addEventListener("click", () => showAuthPanel("signup"));
   toSignin?.addEventListener("click", () => showAuthPanel("signin"));
 
-  // 4-5: sign-in API
-  signinForm?.addEventListener("submit", (event) => {
+  signinForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    await handleSignin(signinForm);
   });
 
   signupForm?.addEventListener("submit", async (event) => {
@@ -77,6 +77,43 @@ function setupAuthDialog() {
     el.textContent = message;
     el.classList.remove("is-error", "is-success");
     if (type) el.classList.add(type);
+  }
+
+  async function handleSignin(form) {
+    const formData = new FormData(form);
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
+
+    setAuthMessage("auth-signin-message", "", null);
+
+    if (!email || !password) {
+      setAuthMessage("auth-signin-message", "請提供完整的登入資訊", "is-error");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/user/auth", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const result = await response.json();
+
+      if (!response.ok || result.error || !result.token) {
+        setAuthMessage(
+          "auth-signin-message",
+          result.message || "登入失敗，請稍後再試",
+          "is-error",
+        );
+        return;
+      }
+
+      localStorage.setItem(AUTH_TOKEN_KEY, result.token);
+      location.reload();
+    } catch (error) {
+      console.error(error);
+      setAuthMessage("auth-signin-message", "登入失敗，請稍後再試", "is-error");
+    }
   }
 
   async function handleSignup(form) {
