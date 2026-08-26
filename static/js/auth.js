@@ -73,7 +73,7 @@ function setupAuthDialog() {
   function clearAuthMessages() {
     document.querySelectorAll(".auth-dialog__message").forEach((el) => {
       el.textContent = "";
-      el.classList.remove("is-error", "is-success");
+      el.classList.remove("is-error", "is-success", "is-visible");
     });
   }
 
@@ -81,8 +81,11 @@ function setupAuthDialog() {
     const el = document.getElementById(elementId);
     if (!el) return;
     el.textContent = message;
-    el.classList.remove("is-error", "is-success");
-    if (type) el.classList.add(type);
+    el.classList.remove("is-error", "is-success", "is-visible");
+    if (message) {
+      el.classList.add("is-visible");
+      if (type) el.classList.add(type);
+    }
   }
 
   async function handleSignin(form) {
@@ -195,7 +198,7 @@ function renderAuthButton(user) {
     authButton.textContent = "登出系統";
     authButton.dataset.authState = "signed-in";
   } else {
-    authButton.textContent = "登入/註冊";
+    authButton.textContent = "登入 / 註冊";
     authButton.dataset.authState = "signed-out";
   }
 }

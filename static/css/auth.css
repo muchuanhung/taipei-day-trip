@@ -36,13 +36,14 @@
 
 .auth-dialog__close {
   position: absolute;
-  top: 20px;
+  top: 27px;
   right: 17px;
   width: 16px;
   height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .auth-dialog__close img {
@@ -53,7 +54,7 @@
 
 .auth-dialog__title {
   margin: 0;
-  padding: 15px 0;
+  padding: 22px 0 15px;
   color: #666666;
   font-size: 24px;
   font-weight: 700;
@@ -74,6 +75,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 310px;
+  margin: 0 auto;
 }
 
 .auth-dialog__input {
@@ -86,10 +89,12 @@
   font-size: 16px;
   font-weight: 500;
   line-height: 13.3px;
+  box-sizing: border-box;
 }
 
 .auth-dialog__input::placeholder {
   color: #757575;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -102,6 +107,7 @@
   font-size: 19px;
   font-weight: 400;
   line-height: 16px;
+  cursor: pointer;
 }
 
 .auth-dialog__submit:hover {
@@ -109,13 +115,17 @@
 }
 
 .auth-dialog__message {
-  min-height: 22px;
+  display: none;
   margin: 10px 0 0;
   color: #666666;
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;
   text-align: center;
+}
+
+.auth-dialog__message.is-visible {
+  display: block;
 }
 
 .auth-dialog__message.is-error {
@@ -127,7 +137,8 @@
 }
 
 .auth-dialog__switch {
-  margin: 10px 0 0;
+  width: 310px;
+  margin: 10px auto 0;
   color: #666666;
   font-size: 16px;
   font-weight: 500;
