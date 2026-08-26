@@ -23,6 +23,7 @@ function setupAuthDialog() {
 
   authButton?.addEventListener("click", () => {
     if (authButton.dataset.authState === "signed-in") {
+      handleSignOut();
       return;
     }
     openAuthDialog("signin");
@@ -42,6 +43,11 @@ function setupAuthDialog() {
     event.preventDefault();
     await handleSignup(signupForm);
   });
+
+  function handleSignOut() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    location.reload();
+  }
 
   function openAuthDialog(panel = "signin") {
     showAuthPanel(panel);
