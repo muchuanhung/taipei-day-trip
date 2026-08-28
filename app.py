@@ -2,10 +2,17 @@ from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from database import get_connection
+import os
+from datetime import datetime, timedelta, timezone
+import bcrypt
+import jwt
 
 app = FastAPI()
 
 PAGE_SIZE = 8
+JWT_SECRET = os.getenv("JWT_SECRET", "taipei-day-trip-dev-secret")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_DAYS = 7
 
 
 # Static Pages 不變更
@@ -32,6 +39,109 @@ def error_response(status_code: int, message: str):
 		status_code=status_code,
 		content={"error": True, "message": message},
 	)
+
+def hash_password(password: str) -> str:
+	return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+def verify_password(password: str, hashed: str) -> bool:
+	return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+
+def create_access_token(user: dict) -> str:
+	payload = {
+		"id": user["id"],
+		"name": user["name"],
+		"email": user["email"],
+		"exp": datetime.now(timezone.utc) + timedelta(days=JWT_EXPIRE_DAYS),
+	}
+	return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def decode_access_token(token: str) -> dict | None:
+	try:
+		return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+	except Exception:
+		return None
+
+# 註冊
+@app.post("/api/user")
+async def api_user_signup(request: Request):
+	try:
+		body = await request.json()
+		name = (body.get("name") or "").strip()
+		email = (body.get("email") or "").strip()
+		password = body.get("password") or ""
+
+		if not name or not email or not password:
+			return error_response(400, "請提供完整的註冊資訊")
+
+		conn = get_connection()
+		try:
+			with conn.cursor() as cursor:
+				cursor.execute("SELECT id FROM user WHERE email = %s", (email,))
+				if cursor.fetchone():
+					return error_response(400, "註冊失敗，重複的 Email 或其他原因")
+
+				cursor.execute(
+					"INSERT INTO user (name, email, password) VALUES (%s, %s, %s)",
+					(name, email, hash_password(password)),
+				)
+				conn.commit()
+			return {"ok": True}
+		finally:
+			conn.close()
+	except Exception as exc:
+		return error_response(500, str(exc))
+
+# 登入
+@app.put("/api/user/auth")
+async def api_user_signin(request: Request):
+	try:
+		body = await request.json()
+		email = (body.get("email") or "").strip()
+		password = body.get("password") or ""
+
+		if not email or not password:
+			return error_response(400, "請提供完整的登入資訊")
+
+		conn = get_connection()
+		try:
+			with conn.cursor() as cursor:
+				cursor.execute(
+					"SELECT id, name, email, password FROM user WHERE email = %s",
+					(email,),
+				)
+				user = cursor.fetchone()
+		finally:
+			conn.close()
+
+		if not user or not verify_password(password, user["password"]):
+			return error_response(400, "登入失敗，帳號或密碼錯誤或其他原因")
+
+		token = create_access_token(user)
+		return {"token": token}
+	except Exception as exc:
+		return error_response(500, str(exc))
+
+# 取得登入狀態
+@app.get("/api/user/auth")
+async def api_user_auth(authorization: str | None = Header(default=None)):
+	try:
+		if not authorization or not authorization.startswith("Bearer "):
+			return {"data": None}
+
+		token = authorization.removeprefix("Bearer ").strip()
+		payload = decode_access_token(token)
+		if not payload:
+			return {"data": None}
+
+		return {
+			"data": {
+				"id": payload.get("id"),
+				"name": payload.get("name"),
+				"email": payload.get("email"),
+			}
+		}
+	except Exception:
+		return {"data": None}
 
 # 序列化景點
 def serialize_attraction(row: dict, images: list[str]) -> dict:
