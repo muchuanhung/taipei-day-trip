@@ -1,11 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking</title>
+  <title>台北一日遊</title>
+  <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/booking.css">
+  <link rel="stylesheet" href="/static/css/auth.css">
+  <script src="/static/js/auth.js" defer></script>
 </head>
 <body>
-  
+  <header class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__logo" href="/">台北一日遊</a>
+      <nav class="navbar__actions">
+        <button type="button" class="navbar__link">預定行程</button>
+        <button type="button" class="navbar__link" id="auth-open">登入 / 註冊</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="booking-main">
+    <div class="booking-main__inner">
+      <section class="booking-section" id="booking-section">
+        <h1 class="booking-section__title" id="booking-title">您好，測試使用者，待預訂的行程如下：</h1>
+
+        <div class="booking-item" id="booking-item">
+          <a class="booking-item__image" href="/attraction/10">
+            <img
+              src="https://padax.github.io/taipei-day-trip-resources/imgs/10-0.jpg"
+              alt="南港山系-象山親山步道"
+              width="266"
+              height="200"
+            >
+          </a>
+
+          <div class="booking-item__info">
+            <div class="booking-item__row booking-item__row--name">
+              <a class="booking-item__name" href="/attraction/10">
+                <span class="booking-item__label">台北一日遊：</span>
+                <span>南港山系-象山親山步道</span>
+              </a>
+            </div>
+            <div class="booking-item__row">
+              <span class="booking-item__label">日期：</span>
+              <span class="booking-item__value">2026-09-15</span>
+            </div>
+            <div class="booking-item__row">
+              <span class="booking-item__label">時間：</span>
+              <span class="booking-item__value">早上9點 - 下午1點</span>
+            </div>
+            <div class="booking-item__row">
+              <span class="booking-item__label">費用：</span>
+              <span class="booking-item__value">新台幣 2000 元</span>
+            </div>
+            <div class="booking-item__row">
+              <span class="booking-item__label">地點：</span>
+              <span class="booking-item__value">臺北市  信義區信義路五段150巷</span>
+            </div>
+          </div>
+
+          <button type="button" class="booking-item__delete" id="booking-delete" aria-label="刪除預定行程">
+            <img src="/static/images/icon_delete.png" alt="" width="30" height="30">
+          </button>
+        </div>
+
+        <p class="booking-empty" id="booking-empty" hidden>沒有預定行程</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>COPYRIGHT © 2021 台北一日遊</p>
+  </footer>
 </body>
 </html>
