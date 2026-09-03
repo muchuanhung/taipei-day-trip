@@ -1,18 +1,32 @@
-const AUTH_TOKEN_KEY = "token";
+function bootBookingPage() {
+  initBookingPage();
+}
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const user = await checkUser();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootBookingPage);
+} else {
+  bootBookingPage();
+}
+
+async function initBookingPage() {
+  const user = await resolveCurrentUser();
   if (!user) {
-    location.href = "/";
+    location.replace("/");
     return;
   }
 
   renderTitle(user.name);
+  setupDeleteButton();
   await loadBooking();
-});
+}
 
-async function checkUser() {
-  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+async function resolveCurrentUser() {
+  if (window.authStatusPromise) {
+    await window.authStatusPromise;
+    return window.currentUser ?? null;
+  }
+
+  const token = localStorage.getItem("token");
   const headers = {};
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -27,17 +41,28 @@ async function checkUser() {
 
 function renderTitle(name) {
   const title = document.getElementById("booking-title");
-  if (title) title.textContent = `您好，${name}，待預訂的行程如下：`;
+  if (!title) return;
+
+  title.innerHTML = `您好，<span class="booking-section__name">${name}</span>，待預訂的行程如下：`;
 }
 
 async function loadBooking() {
-  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const token = localStorage.getItem("token");
+  if (!token) {
+    location.replace("/");
+    return;
+  }
 
   try {
     const response = await fetch("/api/booking", {
       headers: { Authorization: `Bearer ${token}` },
     });
     const result = await response.json();
+
+    if (response.status === 403 || result.message?.includes("未登入")) {
+      location.replace("/");
+      return;
+    }
 
     if (!response.ok || result.error) {
       showEmpty();
@@ -57,6 +82,7 @@ async function loadBooking() {
 
 function renderBooking(data) {
   const item = document.getElementById("booking-item");
+  const empty = document.getElementById("booking-empty");
   if (!item) return;
 
   const attractionId = data.attraction.id;
@@ -81,27 +107,42 @@ function renderBooking(data) {
   rows[2].textContent = `新台幣 ${data.price} 元`;
   rows[3].textContent = attractionAddress;
 
+  empty?.setAttribute("hidden", "");
   item.removeAttribute("hidden");
-
-  const deleteBtn = document.getElementById("booking-delete");
-  deleteBtn?.addEventListener("click", handleDelete);
 }
 
 function showEmpty() {
   const item = document.getElementById("booking-item");
   const empty = document.getElementById("booking-empty");
-  if (item) item.hidden = true;
-  if (empty) empty.removeAttribute("hidden");
+  if (item) item.setAttribute("hidden", "");
+  empty?.removeAttribute("hidden");
+}
+
+function setupDeleteButton() {
+  const deleteBtn = document.getElementById("booking-delete");
+  if (!deleteBtn || deleteBtn.dataset.bound === "true") return;
+
+  deleteBtn.dataset.bound = "true";
+  deleteBtn.addEventListener("click", handleDelete);
 }
 
 async function handleDelete() {
-  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const token = localStorage.getItem("token");
+  if (!token) {
+    location.replace("/");
+    return;
+  }
 
   try {
     const response = await fetch("/api/booking", {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (response.status === 403) {
+      location.replace("/");
+      return;
+    }
 
     if (!response.ok) {
       const result = await response.json().catch(() => ({}));

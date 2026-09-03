@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAuthDialog();
   setupBookingLink();
   authStatusPromise = checkAuthStatus();
+  window.authStatusPromise = authStatusPromise;
 });
 
 function setupBookingLink() {
@@ -205,10 +206,12 @@ async function checkAuthStatus() {
     const response = await fetch("/api/user/auth", { headers });
     const result = await response.json();
     currentUser = result.data ?? null;
+    window.currentUser = currentUser;
     renderAuthButton(currentUser);
   } catch (error) {
     console.error(error);
     currentUser = null;
+    window.currentUser = null;
     renderAuthButton(null);
   }
 }

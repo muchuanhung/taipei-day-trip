@@ -96,17 +96,26 @@ a {
 }
 
 .booking-section__title {
-  margin: 0 0 20px;
+  margin: 0 0 30px;
   font-size: 19px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 23px;
+  color: #666666;
+}
+
+.booking-section__name {
+  font-weight: 700;
 }
 
 /* Booking item */
 .booking-item {
   display: flex;
   gap: 20px;
-  padding-top: 20px;
+}
+
+.booking-item[hidden],
+.booking-empty[hidden] {
+  display: none;
 }
 
 .booking-item__image {
@@ -167,10 +176,10 @@ a {
 }
 
 .booking-empty {
-  margin: 20px 0 0;
-  color: #fa7272;
+  margin: 0;
+  color: #757575;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 23px;
 }
 
