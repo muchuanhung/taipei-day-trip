@@ -1,9 +1,30 @@
 const AUTH_TOKEN_KEY = "token";
+let currentUser = null;
+let authStatusPromise = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   setupAuthDialog();
-  checkAuthStatus();
+  setupBookingLink();
+  authStatusPromise = checkAuthStatus();
 });
+
+function setupBookingLink() {
+  const bookingButton = document.getElementById("booking-link");
+  if (!bookingButton) return;
+
+  bookingButton.addEventListener("click", async () => {
+    if (authStatusPromise) {
+      await authStatusPromise;
+    }
+
+    if (currentUser) {
+      location.href = "/booking";
+      return;
+    }
+
+    window.AuthDialog?.open("signin");
+  });
+}
 
 function setupAuthDialog() {
   mountAuthDialog();
@@ -183,9 +204,11 @@ async function checkAuthStatus() {
   try {
     const response = await fetch("/api/user/auth", { headers });
     const result = await response.json();
-    renderAuthButton(result.data ?? null);
+    currentUser = result.data ?? null;
+    renderAuthButton(currentUser);
   } catch (error) {
     console.error(error);
+    currentUser = null;
     renderAuthButton(null);
   }
 }
