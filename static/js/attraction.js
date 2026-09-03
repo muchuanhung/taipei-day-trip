@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   setupTimeSelection();
   loadAttraction();
+  setupBookingCTA();
 });
 
 function getAttractionId() {
@@ -131,4 +132,68 @@ function updateBookingPrice() {
 
   const amount = selected?.value === "morning" ? 2000 : 2500;
   price.textContent = `新台幣 ${amount} 元`;
+}
+
+function setupBookingCTA() {
+  const button = document.querySelector(".booking-card__submit");
+  const dateInput = document.getElementById("booking-date");
+  if (!button || !dateInput) return;
+
+  button.addEventListener("click", async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.AuthDialog?.open("signin");
+      return;
+    }
+
+    const attractionId = getAttractionId();
+    if (!attractionId) return;
+
+    const date = dateInput.value;
+    if (!date) {
+      alert("請選擇日期");
+      return;
+    }
+
+    const selectedTime = document.querySelector('input[name="time-slot"]:checked')?.value;
+    if (!selectedTime) {
+      alert("請選擇時間");
+      return;
+    }
+
+    const price = selectedTime === "morning" ? 2000 : 2500;
+
+    try {
+      const response = await fetch("/api/booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          attractionId,
+          date,
+          time: selectedTime,
+          price,
+        }),
+      });
+
+      if (response.status === 403) {
+        // token 過期/無效：用同一套登入彈窗處理
+        window.AuthDialog?.open("signin");
+        return;
+      }
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.error) {
+        alert(result.message || "建立預定失敗，請稍後再試");
+        return;
+      }
+
+      location.href = "/booking";
+    } catch (error) {
+      console.error(error);
+      alert("建立預定失敗，請稍後再試");
+    }
+  });
 }
