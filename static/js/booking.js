@@ -16,6 +16,7 @@ async function initBookingPage() {
   }
 
   renderTitle(user.name);
+  fillContactForm(user);
   setupDeleteButton();
   await loadBooking();
 }
@@ -44,6 +45,13 @@ function renderTitle(name) {
   if (!title) return;
 
   title.innerHTML = `您好，<span class="booking-section__name">${name}</span>，待預訂的行程如下：`;
+}
+
+function fillContactForm(user) {
+  const nameInput = document.getElementById("contact-name");
+  const emailInput = document.getElementById("contact-email");
+  if (nameInput) nameInput.value = user.name || "";
+  if (emailInput) emailInput.value = user.email || "";
 }
 
 async function loadBooking() {
@@ -83,6 +91,7 @@ async function loadBooking() {
 function renderBooking(data) {
   const item = document.getElementById("booking-item");
   const empty = document.getElementById("booking-empty");
+  const checkout = document.getElementById("booking-checkout");
   if (!item) return;
 
   const attractionId = data.attraction.id;
@@ -107,14 +116,20 @@ function renderBooking(data) {
   rows[2].textContent = `新台幣 ${data.price} 元`;
   rows[3].textContent = attractionAddress;
 
+  const total = document.getElementById("booking-total");
+  if (total) total.textContent = `總價：新台幣 ${data.price} 元`;
+
   empty?.setAttribute("hidden", "");
+  checkout?.removeAttribute("hidden");
   item.removeAttribute("hidden");
 }
 
 function showEmpty() {
   const item = document.getElementById("booking-item");
   const empty = document.getElementById("booking-empty");
+  const checkout = document.getElementById("booking-checkout");
   if (item) item.setAttribute("hidden", "");
+  checkout?.setAttribute("hidden", "");
   empty?.removeAttribute("hidden");
 }
 
