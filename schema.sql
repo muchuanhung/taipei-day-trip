@@ -42,3 +42,20 @@ CREATE TABLE IF NOT EXISTS user (
   password VARCHAR(255) NOT NULL,
   UNIQUE KEY uk_user_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 建立 booking 表（預定行程）
+CREATE TABLE IF NOT EXISTS booking (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  attraction_id INT NOT NULL,
+  date DATE NOT NULL,
+  time VARCHAR(20) NOT NULL,
+  price INT NOT NULL,
+  UNIQUE KEY uk_booking_user (user_id),
+  CONSTRAINT fk_booking_user
+    FOREIGN KEY (user_id) REFERENCES user(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_booking_attraction
+    FOREIGN KEY (attraction_id) REFERENCES attraction(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

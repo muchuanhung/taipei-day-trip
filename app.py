@@ -61,6 +61,13 @@ def decode_access_token(token: str) -> dict | None:
 	except Exception:
 		return None
 
+# upsert
+def get_user_from_auth(authorization: str | None) -> dict | None:
+	if not authorization or not authorization.startswith("Bearer "):
+		return None
+	token = authorization.removeprefix("Bearer ").strip()
+	return decode_access_token(token)
+
 # 註冊
 @app.post("/api/user")
 async def api_user_signup(request: Request):
@@ -142,6 +149,145 @@ async def api_user_auth(authorization: str | None = Header(default=None)):
 		}
 	except Exception:
 		return {"data": None}
+
+# 取得預定行程
+@app.get("/api/booking")
+async def api_booking_get(authorization: str | None = Header(default=None)):
+	try:
+		user = get_user_from_auth(authorization)
+		if not user:
+			return error_response(403, "未登入系統，拒絕存取")
+
+		conn = get_connection()
+		try:
+			with conn.cursor() as cursor:
+				cursor.execute(
+					"""
+					SELECT
+						a.id AS attraction_id,
+						a.name AS attraction_name,
+						a.address AS attraction_address,
+						b.date,
+						b.time,
+						b.price
+					FROM booking AS b
+					INNER JOIN attraction AS a ON a.id = b.attraction_id
+					WHERE b.user_id = %s
+					""",
+					(user["id"],),
+				)
+				row = cursor.fetchone()
+				if not row:
+					return {"data": None}
+
+				images_map = fetch_images(cursor, [row["attraction_id"]])
+				images = images_map.get(row["attraction_id"], [])
+				booking_date = row["date"]
+				if hasattr(booking_date, "isoformat"):
+					booking_date = booking_date.isoformat()
+
+				return {
+					"data": {
+						"attraction": {
+							"id": row["attraction_id"],
+							"name": row["attraction_name"],
+							"address": row["attraction_address"],
+							"image": images[0] if images else "",
+						},
+						"date": booking_date,
+						"time": row["time"],
+						"price": row["price"],
+					}
+				}
+		finally:
+			conn.close()
+	except Exception as exc:
+		return error_response(500, str(exc))
+
+# 建立或更新預定行程
+@app.post("/api/booking")
+async def api_booking_post(
+	request: Request,
+	authorization: str | None = Header(default=None),
+):
+	try:
+		user = get_user_from_auth(authorization)
+		if not user:
+			return error_response(403, "未登入系統，拒絕存取")
+
+		body = await request.json()
+		attraction_id = body.get("attractionId")
+		date = body.get("date")
+		time = body.get("time")
+		price = body.get("price")
+
+		if not attraction_id or not date or not time or price is None:
+			return error_response(400, "建立失敗，輸入不正確或其他原因")
+
+		if time not in ("morning", "afternoon"):
+			return error_response(400, "建立失敗，輸入不正確或其他原因")
+
+		conn = get_connection()
+		try:
+			with conn.cursor() as cursor:
+				cursor.execute(
+					"SELECT id FROM attraction WHERE id = %s",
+					(attraction_id,),
+				)
+				if not cursor.fetchone():
+					return error_response(400, "建立失敗，輸入不正確或其他原因")
+
+				cursor.execute(
+					"SELECT id FROM booking WHERE user_id = %s",
+					(user["id"],),
+				)
+				existing = cursor.fetchone()
+
+				if existing:
+					cursor.execute(
+						"""
+						UPDATE booking
+						SET attraction_id = %s, date = %s, time = %s, price = %s
+						WHERE user_id = %s
+						""",
+						(attraction_id, date, time, price, user["id"]),
+					)
+				else:
+					cursor.execute(
+						"""
+						INSERT INTO booking (user_id, attraction_id, date, time, price)
+						VALUES (%s, %s, %s, %s, %s)
+						""",
+						(user["id"], attraction_id, date, time, price),
+					)
+				conn.commit()
+			return {"ok": True}
+		finally:
+			conn.close()
+	except Exception as exc:
+		return error_response(500, str(exc))
+
+# 刪除預定行程
+@app.delete("/api/booking")
+async def api_booking_delete(authorization: str | None = Header(default=None)):
+	try:
+		user = get_user_from_auth(authorization)
+		if not user:
+			return error_response(403, "未登入系統，拒絕存取")
+
+		conn = get_connection()
+		try:
+			with conn.cursor() as cursor:
+				cursor.execute(
+					"DELETE FROM booking WHERE user_id = %s",
+					(user["id"],),
+				)
+				conn.commit()
+			return {"ok": True}
+		finally:
+			conn.close()
+	except Exception as exc:
+		return error_response(500, str(exc))
 
 # 序列化景點
 def serialize_attraction(row: dict, images: list[str]) -> dict:
