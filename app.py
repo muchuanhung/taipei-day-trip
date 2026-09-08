@@ -1,8 +1,13 @@
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from database import get_connection
+import json
 import os
+import random
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
@@ -13,6 +18,14 @@ PAGE_SIZE = 8
 JWT_SECRET = os.getenv("JWT_SECRET", "taipei-day-trip-dev-secret")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_DAYS = 7
+
+# TapPay：Partner Key 屬於機密，只能放伺服器端，一律從環境變數讀取
+TAPPAY_PARTNER_KEY = os.getenv("TAPPAY_PARTNER_KEY", "")
+TAPPAY_MERCHANT_ID = os.getenv("TAPPAY_MERCHANT_ID", "")
+TAPPAY_PAY_URL = os.getenv(
+	"TAPPAY_PAY_URL",
+	"https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime",
+)
 
 
 # Static Pages 不變更
@@ -286,6 +299,151 @@ async def api_booking_delete(authorization: str | None = Header(default=None)):
 			return {"ok": True}
 		finally:
 			conn.close()
+	except Exception as exc:
+		return error_response(500, str(exc))
+
+# 產生訂單編號：時間戳 + 四位亂數，避免同秒多筆碰撞
+def generate_order_number() -> str:
+	stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%Y%m%d%H%M%S")
+	return f"{stamp}{random.randint(1000, 9999)}"
+
+# 呼叫 TapPay Pay By Prime API 扣款
+def pay_by_prime(prime: str, amount: int, contact: dict, details: str) -> dict:
+	payload = {
+		"prime": prime,
+		"partner_key": TAPPAY_PARTNER_KEY,
+		"merchant_id": TAPPAY_MERCHANT_ID,
+		"details": details,
+		"amount": amount,
+		"cardholder": {
+			"phone_number": contact["phone"],
+			"name": contact["name"],
+			"email": contact["email"],
+		},
+		"remember": False,
+	}
+	req = urllib.request.Request(
+		TAPPAY_PAY_URL,
+		data=json.dumps(payload).encode("utf-8"),
+		headers={
+			"Content-Type": "application/json",
+			"x-api-key": TAPPAY_PARTNER_KEY,
+		},
+		method="POST",
+	)
+	try:
+		with urllib.request.urlopen(req, timeout=20) as response:
+			return json.loads(response.read().decode("utf-8"))
+	except urllib.error.HTTPError as exc:
+		return {"status": -1, "msg": f"TapPay 回應錯誤：{exc.code}"}
+	except Exception as exc:
+		return {"status": -1, "msg": f"無法連線 TapPay：{exc}"}
+
+# 建立訂單並付款
+@app.post("/api/orders")
+async def api_orders_post(
+	request: Request,
+	authorization: str | None = Header(default=None),
+):
+	try:
+		user = get_user_from_auth(authorization)
+		if not user:
+			return error_response(403, "未登入系統，拒絕存取")
+
+		body = await request.json()
+		prime = (body.get("prime") or "").strip()
+		order = body.get("order") or {}
+		trip = order.get("trip") or {}
+		attraction = trip.get("attraction") or {}
+		contact = order.get("contact") or {}
+
+		attraction_id = attraction.get("id")
+		date = trip.get("date")
+		time = trip.get("time")
+		price = order.get("price")
+		name = (contact.get("name") or "").strip()
+		email = (contact.get("email") or "").strip()
+		phone = (contact.get("phone") or "").strip()
+
+		if not prime or not attraction_id or not date or not price:
+			return error_response(400, "訂單建立失敗，輸入不正確或其他原因")
+
+		if time not in ("morning", "afternoon"):
+			return error_response(400, "訂單建立失敗，輸入不正確或其他原因")
+
+		if not name or not email or not phone:
+			return error_response(400, "訂單建立失敗，輸入不正確或其他原因")
+
+		if not TAPPAY_PARTNER_KEY or not TAPPAY_MERCHANT_ID:
+			return error_response(500, "伺服器未設定 TapPay 金鑰")
+
+		number = generate_order_number()
+
+		conn = get_connection()
+		try:
+			# 步驟 1：先寫入 UNPAID 訂單，確保扣款前一定留有紀錄
+			with conn.cursor() as cursor:
+				cursor.execute(
+					"""
+					INSERT INTO orders
+						(number, user_id, attraction_id, date, time, price,
+						 contact_name, contact_email, contact_phone, status)
+					VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'UNPAID')
+					""",
+					(
+						number, user["id"], attraction_id, date, time, price,
+						name, email, phone,
+					),
+				)
+				order_id = cursor.lastrowid
+				conn.commit()
+
+			# 步驟 2：呼叫 TapPay 扣款
+			# urllib 是阻塞式 IO，丟到 threadpool 才不會卡住整個事件迴圈
+			result = await run_in_threadpool(
+				pay_by_prime,
+				prime,
+				price,
+				{"name": name, "email": email, "phone": phone},
+				f"台北一日遊 {number}",
+			)
+			status = result.get("status", -1)
+			message = result.get("msg") or ""
+			rec_trade_id = result.get("rec_trade_id")
+
+			with conn.cursor() as cursor:
+				# 步驟 3：無論成敗都寫入付款紀錄
+				cursor.execute(
+					"""
+					INSERT INTO payment (order_id, status, message, rec_trade_id, amount)
+					VALUES (%s, %s, %s, %s, %s)
+					""",
+					(order_id, status, message[:255], rec_trade_id, price),
+				)
+
+				# 步驟 4：付款成功才標記 PAID，並清掉待預訂行程
+				if status == 0:
+					cursor.execute(
+						"UPDATE orders SET status = 'PAID' WHERE id = %s",
+						(order_id,),
+					)
+					cursor.execute(
+						"DELETE FROM booking WHERE user_id = %s",
+						(user["id"],),
+					)
+				conn.commit()
+		finally:
+			conn.close()
+
+		return {
+			"data": {
+				"number": number,
+				"payment": {
+					"status": status,
+					"message": "付款成功" if status == 0 else (message or "付款失敗"),
+				},
+			}
+		}
 	except Exception as exc:
 		return error_response(500, str(exc))
 

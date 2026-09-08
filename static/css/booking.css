@@ -301,6 +301,11 @@ a {
   background: #337788;
 }
 
+.booking-confirm__button:disabled {
+  background: #a3a3a3;
+  cursor: not-allowed;
+}
+
 /* Footer */
 .footer {
   width: 100%;

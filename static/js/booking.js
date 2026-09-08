@@ -94,6 +94,8 @@ async function loadBooking() {
   }
 }
 
+let currentBooking = null;
+
 function renderBooking(data) {
   const item = document.getElementById("booking-item");
   const empty = document.getElementById("booking-empty");
@@ -128,6 +130,7 @@ function renderBooking(data) {
   empty?.setAttribute("hidden", "");
   checkout?.removeAttribute("hidden");
   item.removeAttribute("hidden");
+  currentBooking = data;
 }
 
 function showEmpty() {
@@ -238,14 +241,70 @@ async function handlePay() {
     return;
   }
 
+  if (!currentBooking) {
+    alert("目前沒有待預訂的行程");
+    return;
+  }
+
+  const payBtn = document.getElementById("booking-pay");
+  payBtn.disabled = true;
+
   try {
     const prime = await getPrime();
-    // TODO: 6-3 改為送到後端 POST /api/orders
-    console.log("prime:", prime);
-    alert(`已取得 prime：${prime}`);
+    const order = await createOrder(prime, contact);
+
+    if (order.payment.status !== 0) {
+      alert(`付款失敗：${order.payment.message}，請確認信用卡資訊後再試一次`);
+      return;
+    }
+
+    location.assign(`/thankyou?number=${encodeURIComponent(order.number)}`);
   } catch (error) {
     alert(error.message || "取得付款資訊失敗，請稍後再試");
+  } finally {
+    payBtn.disabled = false;
   }
+}
+
+async function createOrder(prime, contact) {
+  const token = localStorage.getItem("token");
+  const response = await fetch("/api/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      prime,
+      order: {
+        price: currentBooking.price,
+        trip: {
+          attraction: {
+            id: currentBooking.attraction.id,
+            name: currentBooking.attraction.name,
+            address: currentBooking.attraction.address,
+            image: currentBooking.attraction.image,
+          },
+          date: currentBooking.date,
+          time: currentBooking.time,
+        },
+        contact,
+      },
+    }),
+  });
+
+  const result = await response.json();
+
+  if (response.status === 403) {
+    location.replace("/");
+    throw new Error("請重新登入");
+  }
+
+  if (!response.ok || result.error) {
+    throw new Error(result.message || "訂購失敗，請稍後再試");
+  }
+
+  return result.data;
 }
 
 function collectContact() {
