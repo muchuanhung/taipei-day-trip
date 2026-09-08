@@ -248,6 +248,21 @@ a {
   color: #a3a3a3;
 }
 
+/* TapPay Fields 掛載容器：內容是 TapPay 的 iframe，不是 input */
+.booking-field__input--tappay {
+  display: block;
+  box-sizing: border-box;
+  line-height: 36px;
+}
+
+.booking-field__input--tappay.is-focus {
+  border-color: #66aabb;
+}
+
+.booking-field__input--tappay.is-error {
+  border-color: #cc3333;
+}
+
 .booking-form-section__hint {
   margin: 5px 0 0;
   font-size: 16px;

@@ -144,3 +144,4 @@ cython_debug/
 # AWS / SSH private keys
 *.pem
 *.ppk
+/project_skill.md
