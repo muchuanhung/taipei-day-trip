@@ -145,3 +145,11 @@ cython_debug/
 *.pem
 *.ppk
 /project_skill.md
+
+# Playwright
+test-results/
+
+# E2E 測試
+/tests/
+/pytest.ini
+/requirements-dev.txt
