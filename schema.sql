@@ -59,3 +59,44 @@ CREATE TABLE IF NOT EXISTS booking (
     FOREIGN KEY (attraction_id) REFERENCES attraction(id)
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 建立 orders 表（訂單）
+-- 一筆訂單對應一趟行程，因為 booking 表限制每位使用者只會有一筆待預訂行程
+CREATE TABLE IF NOT EXISTS orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  number VARCHAR(32) NOT NULL, -- 訂單編號，回傳給前端與 thankyou 頁使用
+  user_id INT NOT NULL,
+  attraction_id INT NOT NULL,
+  date DATE NOT NULL,
+  time VARCHAR(20) NOT NULL,
+  price INT NOT NULL,
+  contact_name VARCHAR(255) NOT NULL,
+  contact_email VARCHAR(255) NOT NULL,
+  contact_phone VARCHAR(20) NOT NULL,
+  status ENUM('UNPAID', 'PAID') NOT NULL DEFAULT 'UNPAID',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_orders_number (number),
+  CONSTRAINT fk_orders_user
+    FOREIGN KEY (user_id) REFERENCES user(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_orders_attraction
+    FOREIGN KEY (attraction_id) REFERENCES attraction(id)
+    ON DELETE CASCADE,
+  INDEX idx_orders_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 建立 payment 表（付款紀錄）
+-- 付款成功或失敗都會留下一筆，方便日後對帳與補款
+CREATE TABLE IF NOT EXISTS payment (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  status INT NOT NULL, -- TapPay 回傳的 status，0 代表成功
+  message VARCHAR(255) NOT NULL,
+  rec_trade_id VARCHAR(64) NULL, -- TapPay 交易編號
+  amount INT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_payment_order
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+    ON DELETE CASCADE,
+  INDEX idx_payment_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

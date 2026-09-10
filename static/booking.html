@@ -10,6 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/booking.css">
   <link rel="stylesheet" href="/static/css/auth.css">
+  <script src="https://js.tappaysdk.com/sdk/tpdirect/v5.24.0"
+    integrity="sha256-cwVPPHf/jIcrQKgj0jg9XvwbZmTSVpH66BodGb9Ylcg="
+    crossorigin="anonymous"></script>
   <script src="/static/js/auth.js" defer></script>
   <script src="/static/js/booking.js" defer></script>
 </head>
@@ -92,16 +95,16 @@
         <section class="booking-form-section">
           <h2 class="booking-form-section__title">信用卡付款資訊</h2>
           <div class="booking-field">
-            <label class="booking-field__label" for="card-number">卡片號碼：</label>
-            <input class="booking-field__input" id="card-number" type="text" name="card-number" placeholder="**** **** **** ****" inputmode="numeric" autocomplete="cc-number">
+            <span class="booking-field__label">卡片號碼：</span>
+            <div class="booking-field__input booking-field__input--tappay" id="card-number"></div>
           </div>
           <div class="booking-field">
-            <label class="booking-field__label" for="card-expiry">過期時間：</label>
-            <input class="booking-field__input" id="card-expiry" type="text" name="card-expiry" placeholder="MM / YY" autocomplete="cc-exp">
+            <span class="booking-field__label">過期時間：</span>
+            <div class="booking-field__input booking-field__input--tappay" id="card-expiry"></div>
           </div>
           <div class="booking-field">
-            <label class="booking-field__label" for="card-ccv">驗證密碼：</label>
-            <input class="booking-field__input" id="card-ccv" type="text" name="card-ccv" placeholder="CVV" inputmode="numeric" autocomplete="cc-csc">
+            <span class="booking-field__label">驗證密碼：</span>
+            <div class="booking-field__input booking-field__input--tappay" id="card-ccv"></div>
           </div>
         </section>
 
