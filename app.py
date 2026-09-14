@@ -6,6 +6,7 @@ from database import get_connection
 import json
 import os
 import random
+import secrets
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -41,6 +42,10 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
+
+@app.get("/member", include_in_schema=False)
+async def member(request: Request):
+	return FileResponse("./static/member.html", media_type="text/html")
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
@@ -162,6 +167,91 @@ async def api_user_auth(authorization: str | None = Header(default=None)):
 		}
 	except Exception:
 		return {"data": None}
+
+# MCP Token 相關 ────────────────────────────────────────────────────────────────
+MCP_TOKEN_BYTES = 32
+
+def generate_mcp_token() -> str:
+	return secrets.token_urlsafe(MCP_TOKEN_BYTES)
+
+def hash_mcp_token(token: str) -> str:
+	return bcrypt.hashpw(token.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+def verify_mcp_token(token: str, hashed: str) -> bool:
+	return bcrypt.checkpw(token.encode("utf-8"), hashed.encode("utf-8"))
+
+def get_user_id_from_mcp_token(token: str) -> int | None:
+	"""驗證 MCP bearer token 並回傳對應的 user_id（供 Part 7-2 使用）"""
+	if not token:
+		return None
+	conn = get_connection()
+	try:
+		with conn.cursor() as cursor:
+			cursor.execute("SELECT id, user_id, token_hash FROM mcp_token")
+			for row in cursor.fetchall():
+				if verify_mcp_token(token, row["token_hash"]):
+					return row["user_id"]
+	finally:
+		conn.close()
+	return None
+
+# 取得 MCP Token 狀態（是否已產生）
+@app.get("/api/member/mcp-token")
+async def api_member_mcp_token_get(authorization: str | None = Header(default=None)):
+	try:
+		user = get_user_from_auth(authorization)
+		if not user:
+			return error_response(403, "未登入系統，拒絕存取")
+
+		conn = get_connection()
+		try:
+			with conn.cursor() as cursor:
+				cursor.execute(
+					"SELECT updated_at FROM mcp_token WHERE user_id = %s",
+					(user["id"],),
+				)
+				row = cursor.fetchone()
+				if row:
+					updated = row["updated_at"]
+					if hasattr(updated, "isoformat"):
+						updated = updated.isoformat()
+					return {"data": {"exists": True, "updatedAt": updated}}
+				return {"data": {"exists": False, "updatedAt": None}}
+		finally:
+			conn.close()
+	except Exception as exc:
+		return error_response(500, str(exc))
+
+# 產生或更新 MCP Token（回傳明文，僅此一次）
+@app.post("/api/member/mcp-token")
+async def api_member_mcp_token_post(authorization: str | None = Header(default=None)):
+	try:
+		user = get_user_from_auth(authorization)
+		if not user:
+			return error_response(403, "未登入系統，拒絕存取")
+
+		token = generate_mcp_token()
+		hashed = hash_mcp_token(token)
+
+		conn = get_connection()
+		try:
+			with conn.cursor() as cursor:
+				cursor.execute(
+					"""
+					INSERT INTO mcp_token (user_id, token_hash)
+					VALUES (%s, %s)
+					ON DUPLICATE KEY UPDATE
+						token_hash = VALUES(token_hash),
+						updated_at = CURRENT_TIMESTAMP
+					""",
+					(user["id"], hashed),
+				)
+				conn.commit()
+			return {"data": {"token": token}}
+		finally:
+			conn.close()
+	except Exception as exc:
+		return error_response(500, str(exc))
 
 # 取得預定行程
 @app.get("/api/booking")

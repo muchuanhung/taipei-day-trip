@@ -100,3 +100,18 @@ CREATE TABLE IF NOT EXISTS payment (
     ON DELETE CASCADE,
   INDEX idx_payment_order (order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 建立 mcp_token 表（MCP 存取金鑰）
+-- 每位會員最多一組有效金鑰；產生新金鑰時會覆蓋舊的
+-- 存放 bcrypt hash，原始 token 只在產生時回傳一次
+CREATE TABLE IF NOT EXISTS mcp_token (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  token_hash VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_mcp_token_user (user_id),
+  CONSTRAINT fk_mcp_token_user
+    FOREIGN KEY (user_id) REFERENCES user(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

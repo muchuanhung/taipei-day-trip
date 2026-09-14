@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員中心｜台北一日遊</title>
+  <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/member.css">
+  <link rel="stylesheet" href="/static/css/auth.css">
+  <script src="/static/js/auth.js" defer></script>
+  <script src="/static/js/member.js" defer></script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__logo" href="/">台北一日遊</a>
+      <nav class="navbar__actions">
+        <button type="button" class="navbar__link" id="booking-link">預定行程</button>
+        <button type="button" class="navbar__link" id="auth-open">登入 / 註冊</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="member-main">
+    <div class="member-main__inner">
+      <section class="member-card">
+        <h1 class="member-card__title">會員中心</h1>
+        <p class="member-card__greeting" id="member-greeting">您好，歡迎使用會員功能</p>
+
+        <div class="member-card__section">
+          <h2 class="member-card__subtitle">MCP 設定說明</h2>
+          <p class="member-card__text">
+            將下方的 MCP Host URL 與 Bearer Token 加入您的 MCP 客戶端設定檔中，即可透過 AI 助手查詢台北一日遊的景點資訊。
+          </p>
+        </div>
+
+        <div class="member-card__section">
+          <h3 class="member-card__label">MCP Host URL</h3>
+          <div class="member-card__field">
+            <input type="text" class="member-card__input" id="mcp-host-url" readonly>
+            <button type="button" class="member-card__copy" id="copy-host-url" aria-label="複製網址">複製</button>
+          </div>
+        </div>
+
+        <div class="member-card__section">
+          <h3 class="member-card__label">Bearer Token</h3>
+          <div class="member-card__field">
+            <input type="text" class="member-card__input member-card__input--token" id="mcp-token" readonly placeholder="尚未產生金鑰">
+            <button type="button" class="member-card__copy" id="copy-token" aria-label="複製金鑰">複製</button>
+          </div>
+          <p class="member-card__hint" id="token-hint"></p>
+          <button type="button" class="member-card__button" id="generate-token">產生 / 更新金鑰</button>
+        </div>
+
+        <div class="member-card__section">
+          <h3 class="member-card__label">MCP 客戶端設定範例</h3>
+          <pre class="member-card__code" id="mcp-config-example">{
+  "mcpServers": {
+    "taipei-day-trip": {
+      "url": "<MCP_HOST_URL>",
+      "headers": {
+        "Authorization": "Bearer <YOUR_TOKEN>"
+      }
+    }
+  }
+}</pre>
+        </div>
+
+        <hr class="member-card__divider">
+
+        <div class="member-card__section">
+          <button type="button" class="member-card__logout" id="logout-button">登出系統</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>COPYRIGHT © 2021 台北一日遊</p>
+  </footer>
+</body>
+</html>
