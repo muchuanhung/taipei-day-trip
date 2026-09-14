@@ -45,7 +45,7 @@ function setupAuthDialog() {
 
   authButton?.addEventListener("click", () => {
     if (authButton.dataset.authState === "signed-in") {
-      handleSignOut();
+      location.href = "/member";
       return;
     }
     openAuthDialog("signin");
@@ -221,7 +221,7 @@ function renderAuthButton(user) {
   if (!authButton) return;
 
   if (user) {
-    authButton.textContent = "登出系統";
+    authButton.textContent = "會員中心";
     authButton.dataset.authState = "signed-in";
   } else {
     authButton.textContent = "登入 / 註冊";
