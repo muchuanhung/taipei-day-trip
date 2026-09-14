@@ -3,17 +3,28 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from database import get_connection
+from mcp_ops import create_or_update_booking, get_user_id_from_mcp_token
+from mcp_server import create_mcp_asgi_app, mcp
 import json
 import os
 import random
 import secrets
 import urllib.error
 import urllib.request
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
-app = FastAPI()
+# MCP ASGI（Streamable HTTP）；必須在 FastAPI lifespan 裡跑 session_manager
+mcp_asgi = create_mcp_asgi_app()
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+	async with mcp.session_manager.run():
+		yield
+
+app = FastAPI(lifespan=lifespan)
 
 PAGE_SIZE = 8
 JWT_SECRET = os.getenv("JWT_SECRET", "taipei-day-trip-dev-secret")
@@ -174,22 +185,6 @@ def generate_mcp_token() -> str:
 	# 64 hex，對齊作業截圖樣式；UNIQUE 後可 O(1) 反查 user_id
 	return secrets.token_hex(32)
 
-def get_user_id_from_mcp_token(token: str) -> int | None:
-	"""用 MCP Bearer Token 反查 user_id（給 Part 7-2 使用）。"""
-	if not token:
-		return None
-	conn = get_connection()
-	try:
-		with conn.cursor() as cursor:
-			cursor.execute(
-				"SELECT user_id FROM mcp_token WHERE token = %s",
-				(token,),
-			)
-			row = cursor.fetchone()
-			return row["user_id"] if row else None
-	finally:
-		conn.close()
-
 @app.get("/api/member/mcp-token")
 async def api_member_mcp_token_get(authorization: str | None = Header(default=None)):
 	try:
@@ -317,43 +312,15 @@ async def api_booking_post(
 		if time not in ("morning", "afternoon"):
 			return error_response(400, "建立失敗，輸入不正確或其他原因")
 
-		conn = get_connection()
 		try:
-			with conn.cursor() as cursor:
-				cursor.execute(
-					"SELECT id FROM attraction WHERE id = %s",
-					(attraction_id,),
-				)
-				if not cursor.fetchone():
-					return error_response(400, "建立失敗，輸入不正確或其他原因")
+			attraction_id = int(attraction_id)
+			price = int(price)
+		except (TypeError, ValueError):
+			return error_response(400, "建立失敗，輸入不正確或其他原因")
 
-				cursor.execute(
-					"SELECT id FROM booking WHERE user_id = %s",
-					(user["id"],),
-				)
-				existing = cursor.fetchone()
-
-				if existing:
-					cursor.execute(
-						"""
-						UPDATE booking
-						SET attraction_id = %s, date = %s, time = %s, price = %s
-						WHERE user_id = %s
-						""",
-						(attraction_id, date, time, price, user["id"]),
-					)
-				else:
-					cursor.execute(
-						"""
-						INSERT INTO booking (user_id, attraction_id, date, time, price)
-						VALUES (%s, %s, %s, %s, %s)
-						""",
-						(user["id"], attraction_id, date, time, price),
-					)
-				conn.commit()
-			return {"ok": True}
-		finally:
-			conn.close()
+		if not create_or_update_booking(user["id"], attraction_id, date, time, price):
+			return error_response(400, "建立失敗，輸入不正確或其他原因")
+		return {"ok": True}
 	except Exception as exc:
 		return error_response(500, str(exc))
 
@@ -681,3 +648,5 @@ async def api_categories():
 		return error_response(500, str(exc))
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+# MCP Server：Authorization: Bearer <member mcp token>
+app.mount("/mcp", mcp_asgi)
