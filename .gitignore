@@ -146,6 +146,10 @@ cython_debug/
 *.ppk
 /project_skill.md
 
+# Codex plugin local secrets
+plugins/**/.mcp.local.json
+.env.mcp
+
 # Playwright
 test-results/
 

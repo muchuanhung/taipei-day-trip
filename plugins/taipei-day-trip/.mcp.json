@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "台北一日遊": {
+      "type": "http",
+      "url": "http://57.182.233.82:8000/mcp/",
+      "bearer_token_env_var": "TAIPEI_DAY_TRIP_MCP_TOKEN"
+    }
+  }
+}
