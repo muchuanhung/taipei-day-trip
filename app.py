@@ -54,7 +54,7 @@ async def booking(request: Request):
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
 
-# 會員中心頁（Part 7-1）：旁加路由，不改既有 Static Pages
+# 會員中心頁（Part 7-1）
 @app.get("/member", include_in_schema=False)
 async def member(request: Request):
 	return FileResponse("./static/member.html", media_type="text/html")
@@ -182,7 +182,7 @@ async def api_user_auth(authorization: str | None = Header(default=None)):
 
 # 會員中心：MCP Bearer Token（與登入 JWT 分開，供 MCP Authorization 使用）
 def generate_mcp_token() -> str:
-	# 64 hex，對齊作業截圖樣式；UNIQUE 後可 O(1) 反查 user_id
+	# 64 hex， UNIQUE 後可 O(1) 反查 user_id
 	return secrets.token_hex(32)
 
 @app.get("/api/member/mcp-token")
