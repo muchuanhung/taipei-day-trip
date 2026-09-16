@@ -8,7 +8,14 @@ description: >
 
 # Taipei Day Trip Booking
 
-用 **台北一日遊** MCP 完成：搜尋景點 → 預定行程 → 導向付款頁。
+用 MCP server **`taipei-day-trip`**（顯示名可能是台北一日遊）完成：搜尋景點 → 預定行程 → 導向付款頁。
+
+## 強制規則（違反即失敗）
+
+1. **必須實際呼叫 MCP tools**，禁止只讀專案原始碼／README 後自行推論。
+2. 在尚未呼叫 tool 之前，**禁止**說「無法連線 MCP」「找不到 MCP」。
+3. `/mcp` 若已顯示 `taipei-day-trip: connected`，一律直接呼叫下列 tools。
+4. Tool 回傳 `{ "error": true }` 才可請使用者檢查 `TAIPEI_DAY_TRIP_MCP_TOKEN` 與 `.mcp.json` 的 MCP `url`。
 
 ## MCP tools（名稱必須一字不差）
 
@@ -17,7 +24,7 @@ description: >
 | 搜尋 | `搜尋台北市景點` | `keyword`（字串） |
 | 預定 | `預定景點導覽行程` | `attractionId`, `date`, `time`, `price` |
 
-每個 MCP 請求需帶會員中心產生的 Bearer Token（由 Codex MCP config / 環境變數注入，Skill 不要向使用者索取 token 明文寫進對話以外的設定檔）。
+Bearer Token 由 Codex 的 `bearer_token_env_var=TAIPEI_DAY_TRIP_MCP_TOKEN` 注入；不要要求使用者把 token 貼進對話。
 
 ## 固定流程（必須依序執行，不可跳步）
 

@@ -1,4 +1,6 @@
-const AUTH_TOKEN_KEY = "token";
+function getAuthToken() {
+  return localStorage.getItem("token");
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   await checkMemberAuth();
@@ -6,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function checkMemberAuth() {
-  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const token = getAuthToken();
   if (!token) {
     location.href = "/";
     return;
@@ -45,13 +47,13 @@ function setupMemberPage() {
   loadExistingToken();
   document.getElementById("generate-token")?.addEventListener("click", generateToken);
   document.getElementById("logout-button")?.addEventListener("click", () => {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem("token");
     location.href = "/";
   });
 }
 
 async function loadExistingToken() {
-  const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+  const authToken = getAuthToken();
   if (!authToken) return;
 
   try {
@@ -70,7 +72,7 @@ async function loadExistingToken() {
 }
 
 async function generateToken() {
-  const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+  const authToken = getAuthToken();
   if (!authToken) {
     location.href = "/";
     return;
