@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員中心｜台北一日遊</title>
+  <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/member.css">
+  <link rel="stylesheet" href="/static/css/auth.css">
+  <script src="/static/js/auth.js" defer></script>
+  <script src="/static/js/member.js" defer></script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__logo" href="/">台北一日遊</a>
+      <nav class="navbar__actions">
+        <button type="button" class="navbar__link" id="booking-link">預定行程</button>
+        <button type="button" class="navbar__link" id="auth-open">登入 / 註冊</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="member-main">
+    <div class="member-main__inner">
+      <p class="member-greeting" id="member-greeting">您好</p>
+
+      <h1 class="member-title">AI 工具整合</h1>
+      <p class="member-subtitle">MCP 伺服器設定：</p>
+
+      <ul class="member-list">
+        <li>
+          <span class="member-list__label">Host URL：</span>
+          <span class="member-list__value" id="mcp-host-url"></span>
+        </li>
+        <li>
+          <span class="member-list__label">Bearer Token：</span>
+          <span class="member-list__value member-list__value--token" id="mcp-token">尚未產生</span>
+        </li>
+      </ul>
+
+      <button type="button" class="member-button" id="generate-token">產生 / 更新金鑰</button>
+      <button type="button" class="member-button member-button--logout" id="logout-button">登出會員</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>COPYRIGHT © 2026 台北一日遊</p>
+  </footer>
+</body>
+</html>

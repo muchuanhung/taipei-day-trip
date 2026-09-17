@@ -1,0 +1,22 @@
+{
+  "name": "taipei-day-trip",
+  "version": "1.0.0",
+  "description": "Search Taipei attractions and create a day-trip booking via MCP.",
+  "author": {
+    "name": "MuChuan Hung"
+  },
+  "keywords": ["taipei", "travel", "booking", "mcp"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "台北一日遊",
+    "shortDescription": "搜尋景點並預定導覽行程",
+    "longDescription": "透過台北一日遊 MCP：關鍵字搜尋景點、預定行程，並導向 Booking 頁完成付款。",
+    "developerName": "MuChuan Hung",
+    "category": "Productivity",
+    "brandColor": "#448899",
+    "defaultPrompt": [
+      "預定台北市一日遊行程"
+    ]
+  }
+}
